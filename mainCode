@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="format-detection" content="telephone=no" />
+    <title>Valentine's Day</title>
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Caveat:wght@400;600;700&display=swap");
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        touch-action: manipulation;
+        -webkit-user-select: none;
+        user-select: none;
+      }
+
+      body {
+        font-family: "Caveat", cursive;
+        background: linear-gradient(
+          135deg,
+          #ffd6e8 0%,
+          #ffe5f0 50%,
+          #fff0f6 100%
+        );
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        overflow: hidden;
+        padding: 40px 20px;
+        -webkit-overflow-scrolling: touch;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      #letterIntro {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(
+          135deg,
+          #ffd6e8 0%,
+          #ffe5f0 50%,
+          #fff0f6 100%
+        );
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 2000;
+        transition: opacity 0.5s ease;
+      }
+
+      #letterIntro.hidden {
+        opacity: 0;
+        pointer-events: none;
+      }
+
+      .envelope {
+        position: relative;
+        width: 300px;
+        height: 200px;
+      }
+
+      .envelope-back {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: #fff;
+        border-radius: 10px;
+        box-shadow: 0 10px 40px rgba(255, 105, 180, 0.3);
+        z-index: 1;
+      }
+
+      .envelope-flap {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 50%;
+        background: #ffb6c1;
+        transform-origin: top center;
+        transition: transform 0.8s ease, z-index 0s 0.8s;
+        z-index: 3;
+        clip-path: polygon(0 0, 100% 0, 50% 100%);
+      }
+
+      .envelope.opening .envelope-flap {
+        transform: rotateX(180deg);
+        z-index: 1;
+      }
+
+      .envelope-front {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 50%;
+        background: #fff;
+        z-index: 4;
+        border-radius: 0 0 10px 10px;
+      }
+
+      .letter {
+        position: absolute;
+        top: 20px;
+        left: 20px;
+        width: 260px;
+        height: 160px;
+        background: #fffaf0;
+        border-radius: 5px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        transition: transform 0.8s ease;
+        transition-delay: 0.8s;
+        z-index: 2;
+      }
+
+      .envelope.opening .letter {
+        transform: translateY(-180px);
+      }
+
+      .stamp {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 60px;
+        height: 60px;
+        background: linear-gradient(135deg, #ff69b4, #ff1493);
+        border-radius: 5px;
+        border: 3px dashed #fff;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 30px;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(255, 20, 147, 0.4);
+        z-index: 6;
+      }
+
+      .stamp.clicked {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0);
+        pointer-events: none;
+      }
+
+      .stamp:hover {
+        transform: translate(-50%, -50%) scale(1.1);
+      }
+
+      .stamp:active {
+        transform: translate(-50%, -50%) scale(0.95);
+      }
+
+      .instruction {
+        position: absolute;
+        bottom: -60px;
+        left: 50%;
+        transform: translateX(-50%);
+        color: #ff69b4;
+        font-size: 1.1em;
+        font-weight: 600;
+        text-align: center;
+        white-space: nowrap;
+        z-index: 6;
+        -webkit-user-select: none;
+        user-select: none;
+        transition: opacity 0.3s ease;
+      }
+
+      .instruction.hidden {
+        opacity: 0;
+      }
+
+      .container {
+        text-align: center;
+        background: rgba(255, 255, 255, 0.9);
+        padding: 80px 60px;
+        border-radius: 30px;
+        box-shadow: 0 20px 60px rgba(255, 182, 193, 0.4);
+        max-width: 800px;
+        position: relative;
+        opacity: 0;
+        transform: scale(0.8);
+        transition: all 0.6s ease;
+        -webkit-backface-visibility: hidden;
+        backface-visibility: hidden;
+        transform: translate3d(0, 0, 0) scale(0.8);
+      }
+
+      .container.show {
+        opacity: 1;
+        transform: translate3d(0, 0, 0) scale(1);
+      }
+
+      h1 {
+        color: #ff69b4;
+        font-size: 4em;
+        margin-bottom: 60px;
+        text-shadow: 2px 2px 4px rgba(255, 182, 193, 0.3);
+        font-weight: 700;
+        -webkit-user-select: none;
+        user-select: none;
+      }
+
+      .buttons-container {
+        position: relative;
+        height: 300px;
+        margin-top: 40px;
+      }
+
+      button {
+        font-family: "Caveat", cursive;
+        font-size: 2em;
+        padding: 20px 60px;
+        border: none;
+        border-radius: 50px;
+        cursor: pointer;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        -webkit-tap-highlight-color: transparent;
+        -webkit-touch-callout: none;
+        user-select: none;
+      }
+
+      #yesBtn {
+        background: linear-gradient(135deg, #ff69b4, #ff1493);
+        color: white;
+        position: relative;
+      }
+
+      #yesBtn:hover {
+        transform: scale(1.1);
+        box-shadow: 0 8px 25px rgba(255, 20, 147, 0.4);
+      }
+
+      #noBtn {
+        background: linear-gradient(135deg, #ffb6c1, #ffccd5);
+        color: #ff69b4;
+        position: absolute;
+        left: 50%;
+        top: 120px;
+        transform: translateX(-50%);
+        transition: all 0.19s ease;
+        -webkit-transform: translateX(-50%);
+        will-change: transform, left, top;
+      }
+
+      #noBtn:hover {
+        background: linear-gradient(135deg, #ffc0cb, #ffd5dc);
+      }
+
+      .hearts {
+        position: absolute;
+        width: 40px;
+        height: 40px;
+        opacity: 0.5;
+        animation: float 3s ease-in-out infinite;
+        pointer-events: none;
+        user-select: none;
+        -webkit-user-select: none;
+        -webkit-touch-callout: none;
+      }
+
+      .heart1 {
+        top: 20px;
+        left: 20px;
+        animation-delay: 0s;
+      }
+      .heart2 {
+        top: 20px;
+        right: 20px;
+        animation-delay: 1s;
+      }
+      .heart3 {
+        bottom: 20px;
+        left: 40px;
+        animation-delay: 2s;
+      }
+      .heart4 {
+        bottom: 20px;
+        right: 40px;
+        animation-delay: 1.5s;
+      }
+
+      @keyframes float {
+        0%,
+        100% {
+          transform: translateY(0px);
+        }
+        50% {
+          transform: translateY(-10px);
+        }
+      }
+
+      #celebration {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(
+          135deg,
+          #ffd6e8 0%,
+          #ffe5f0 50%,
+          #fff0f6 100%
+        );
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+        flex-direction: column;
+      }
+
+      #celebration h2 {
+        color: #ff69b4;
+        font-size: 3.5em;
+        text-shadow: 3px 3px 6px rgba(255, 182, 193, 0.3);
+        font-weight: 700;
+        margin-top: 40px;
+        z-index: 2;
+        opacity: 0;
+        animation: fade-in-text 1.5s ease-in forwards;
+        animation-delay: 3s;
+        -webkit-user-select: none;
+        user-select: none;
+      }
+
+      .heart-balloon {
+        width: 200px;
+        height: 200px;
+        animation: float-up 3s ease-out forwards;
+        pointer-events: none;
+        user-select: none;
+        -webkit-user-select: none;
+        -webkit-touch-callout: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        -webkit-user-drag: none;
+        -khtml-user-select: none;
+        filter: none;
+        box-shadow: none;
+        background: transparent;
+      }
+
+      @keyframes fade-in-text {
+        0% {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        100% {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @keyframes float-up {
+        0% {
+          transform: translateY(100vh) scale(0.5);
+          opacity: 0;
+        }
+        50% {
+          opacity: 1;
+        }
+        100% {
+          transform: translateY(-20px) scale(1);
+          opacity: 1;
+        }
+      }
+
+      @keyframes pulse {
+        0%,
+        100% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.1);
+        }
+      }
+
+      /* Mobile responsive styles */
+      @media (max-width: 768px) {
+        body {
+          padding: 20px 10px;
+        }
+
+        .container {
+          padding: 40px 30px;
+          max-width: 90%;
+        }
+
+        h1 {
+          font-size: 2.5em;
+          margin-bottom: 40px;
+        }
+
+        .buttons-container {
+          height: 250px;
+          margin-top: 30px;
+        }
+
+        button {
+          font-size: 1.5em;
+          padding: 15px 40px;
+        }
+
+        #noBtn {
+          top: 100px;
+        }
+
+        .hearts {
+          width: 30px;
+          height: 30px;
+        }
+
+        .envelope {
+          width: 250px;
+          height: 166px;
+        }
+
+        .envelope-back {
+          width: 100%;
+          height: 100%;
+        }
+
+        .envelope-flap {
+          width: 100%;
+          height: 50%;
+        }
+
+        .envelope-front {
+          width: 100%;
+          height: 50%;
+        }
+
+        .letter {
+          width: 216px;
+          height: 133px;
+          left: 17px;
+          top: 17px;
+        }
+
+        .stamp {
+          width: 50px;
+          height: 50px;
+        }
+
+        .stamp img {
+          width: 30px !important;
+          height: 30px !important;
+        }
+
+        .instruction {
+          font-size: 1em;
+        }
+
+        #celebration h2 {
+          font-size: 2em;
+          padding: 0 20px;
+          text-align: center;
+        }
+
+        .heart-balloon {
+          width: 150px;
+          height: 150px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="letterIntro">
+      <div class="envelope" id="envelope">
+        <div class="envelope-back"></div>
+        <div class="envelope-flap"></div>
+        <div class="letter"></div>
+        <div class="envelope-front"></div>
+        <div class="stamp" id="stamp">
+          <img
+            src="pngimg_com_-_heart_PNG51349.png"
+            style="width: 40px; height: 40px"
+            draggable="false"
+            oncontextmenu="return false;"
+          />
+        </div>
+        <div class="instruction">Вскрой печать!</div>
+      </div>
+    </div>
+
+    <div class="container" id="mainContainer">
+      <img src="pngimg_com_-_heart_PNG51349.png" class="hearts heart1" alt="" draggable="false" oncontextmenu="return false;" />
+      <img src="pngimg_com_-_heart_PNG51349.png" class="hearts heart2" alt="" draggable="false" oncontextmenu="return false;" />
+      <img src="pngimg_com_-_heart_PNG51349.png" class="hearts heart3" alt="" draggable="false" oncontextmenu="return false;" />
+      <img src="pngimg_com_-_heart_PNG51349.png" class="hearts heart4" alt="" draggable="false" oncontextmenu="return false;" />
+
+      <h1>Мила, ты будешь моей валентинкой?</h1>
+
+      <div class="buttons-container">
+        <button id="yesBtn">Да!</button>
+        <button id="noBtn">Нет</button>
+      </div>
+    </div>
+
+    <div id="celebration">
+      <img src="pngimg_com_-_heart_PNG51349.png" class="heart-balloon" alt="" draggable="false" oncontextmenu="return false;" />
+      <h2>Жду тебя на Moulin Rouge, chaton</h2>
+    </div>
+
+    <script>
+      const stamp = document.getElementById("stamp");
+      const envelope = document.getElementById("envelope");
+      const letterIntro = document.getElementById("letterIntro");
+      const mainContainer = document.getElementById("mainContainer");
+      const noBtn = document.getElementById("noBtn");
+      const yesBtn = document.getElementById("yesBtn");
+      const celebration = document.getElementById("celebration");
+      const container = document.querySelector(".buttons-container");
+
+      // Letter opening animation
+      stamp.addEventListener("click", () => {
+        stamp.classList.add("clicked");
+        document.querySelector(".instruction").classList.add("hidden");
+        envelope.classList.add("opening");
+
+        setTimeout(() => {
+          letterIntro.classList.add("hidden");
+          setTimeout(() => {
+            mainContainer.classList.add("show");
+          }, 300);
+        }, 1500);
+      });
+
+      noBtn.addEventListener("mouseenter", () => {
+        moveNoButton();
+      });
+
+      noBtn.addEventListener("click", (e) => {
+        e.preventDefault();
+        moveNoButton();
+      });
+
+      function moveNoButton() {
+        const containerRect = container.getBoundingClientRect();
+        const btnRect = noBtn.getBoundingClientRect();
+        const yesBtnRect = yesBtn.getBoundingClientRect();
+
+        // Calculate maximum positions to keep button inside container
+        const maxX = containerRect.width - btnRect.width;
+        const maxY = containerRect.height - btnRect.height;
+
+        let randomX, randomY;
+        let attempts = 0;
+        const maxAttempts = 50;
+
+        // Keep trying until we find a position that doesn't overlap with Yes button
+        do {
+          randomX = Math.random() * maxX;
+          randomY = Math.random() * maxY;
+          attempts++;
+
+          // Calculate absolute positions for collision detection
+          const noBtnLeft = containerRect.left + randomX;
+          const noBtnRight = noBtnLeft + btnRect.width;
+          const noBtnTop = containerRect.top + randomY;
+          const noBtnBottom = noBtnTop + btnRect.height;
+
+          // Check if there's no overlap with Yes button (add 10px padding)
+          const noOverlap =
+            noBtnRight < yesBtnRect.left - 10 ||
+            noBtnLeft > yesBtnRect.right + 10 ||
+            noBtnBottom < yesBtnRect.top - 10 ||
+            noBtnTop > yesBtnRect.bottom + 10;
+
+          if (noOverlap || attempts >= maxAttempts) {
+            break;
+          }
+        } while (true);
+
+        // Use transform for smoother animation on mobile
+        noBtn.style.left = randomX + "px";
+        noBtn.style.top = randomY + "px";
+        noBtn.style.transform = "translate(0, 0)";
+      }
+
+      yesBtn.addEventListener("click", () => {
+        celebration.style.display = "flex";
+      });
+    </script>
+  </body>
+</html>
